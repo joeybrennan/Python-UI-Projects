@@ -17,6 +17,7 @@ import FilterTransmission as FT
 import SimulateEffectiveApertureEfficientcy as SEAF
 import sys
 import numpy as np
+import os
 
 from scipy.integrate import simps
 from __init__ import ureg
@@ -59,7 +60,7 @@ class Main(QtWidgets.QMainWindow, Ui_MainWindow):
     def BBspec(self):
         wavelen = np.linspace(float(self.min.toPlainText()),float(self.max.toPlainText()),float(self.samples.toPlainText()))*1e-6
         
-        path = 'C:/Users/Joe/Documents/Python Scripts/Scatter Pixel Code/Consolidated_Filter.txt'
+        path = 'Consolidated_Filter.txt'
 
         BBT = float(self.BBtemp.toPlainText())
         specIr = BBS.blackBodySpec(wavelen,BBT)
@@ -91,24 +92,24 @@ class Main(QtWidgets.QMainWindow, Ui_MainWindow):
         step = 100/(2*len(wavelen))
         i = 0
         self.progressBar.setValue(i)
-        #f = 'C:\\Users\\Joe\\Documents\\Python Scripts\\Scatter Pixel Code\\resolved data benchmark\\benchmark-aperture-data-%dpol %dum.dat'
-        f = 'C:\\Users\\Joe\\Documents\\Python Scripts\\Scatter Pixel Code\\resolved data\\aperture-data-%dpol %dum.dat'
-    
+        f = os.path.dirname(__file__) + '\\resolved data\\aperture-data-%dpol %dum.dat'
+        #f = os.path.dirname(__file__) + '\\resolved data benchmark\\benchmark-aperture-data-%dpol %dum.dat'
+
         for wnIdx,wn in enumerate(wavelen):
             apertureData0poln = np.loadtxt(f%(0,wn))
             apertureData0pol.append(apertureData0poln)
             i=i+step
             self.progressBar.setValue(i)
             
-        #absEff0pol = np.loadtxt('C:\\Users\\Joe\\Documents\\Python Scripts\\Scatter Pixel Code\\resolved data benchmark\\benchmark-effective-aperture-0pol(40-70um).dat')   
-        absEff0pol = np.loadtxt('C:\\Users\\Joe\\Documents\\Python Scripts\\Scatter Pixel Code\\resolved data\\effective-aperture-0pol(40-70um).dat')   
+        #absEff0pol = np.loadtxt(os.path.dirname(__file__) + '\\resolved data benchmark\\benchmark-effective-aperture-0pol(40-70um).dat')   
+        absEff0pol = np.loadtxt(os.path.dirname(__file__) + '\\resolved data\\effective-aperture-0pol(40-70um).dat')   
         for wnIdx,wn in enumerate(wavelen):
             apertureData90poln = np.loadtxt(f%(90,wn))
             apertureData90pol.append(apertureData90poln)
             i=i+step
             self.progressBar.setValue(i)
-        #absEff90pol = np.loadtxt('C:\\Users\\Joe\\Documents\\Python Scripts\\Scatter Pixel Code\\resolved data benchmark\\benchmark-effective-aperture-90pol(40-70um).dat')
-        absEff90pol = np.loadtxt('C:\\Users\\Joe\\Documents\\Python Scripts\\Scatter Pixel Code\\resolved data\\effective-aperture-90pol(40-70um).dat')
+        #absEff90pol = np.loadtxt(os.path.dirname(__file__) + '\\resolved data benchmark\\benchmark-effective-aperture-90pol(40-70um).dat')
+        absEff90pol = np.loadtxt(os.path.dirname(__file__) + '\\resolved data\\effective-aperture-90pol(40-70um).dat')
             
         #apertureData0pol,apertureData90pol = np.asarray(apertureData0pol),np.asarray(apertureData90pol)
 
@@ -162,7 +163,7 @@ class Main(QtWidgets.QMainWindow, Ui_MainWindow):
         ax1f3.legend(loc='best')
         
         
-        path = 'C:/Users/Joe/Documents/Python Scripts/Scatter Pixel Code/Consolidated_Filter.txt'
+        path = 'Consolidated_Filter.txt'
         FilterCoeff = FT.filterTransmission(path,wavelen*1e-6)
         BBT = float(self.BBtemp.toPlainText())
         specIr = BBS.blackBodySpec(wavelen*1e-6,BBT)
@@ -182,13 +183,10 @@ class Main(QtWidgets.QMainWindow, Ui_MainWindow):
         
 
         specPowerAbsorbed = (specPowerAbsorbed0+specPowerAbsorbed90)/2
-        #totalPowerAbsorbed0pol = simps(baseUnits(specPowerAbsorbed0),wavelen*1e-6)#(watts)
-        #totalPowerAbsorbed90pol = simps(baseUnits(specPowerAbsorbed90),wavelen*1e-6)#(watts)
         totalPowerAbsorbed = simps(baseUnits(specPowerAbsorbed),wavelen*1e-6)
         
         self.totalPowerAbsorbed0.setText(str(totalPowerAbsorbed*ureg.watt))
-        #self.totalPowerAbsorbed0.setText(str(totalPowerAbsorbed0pol*ureg.watt))
-        #self.totalPowerAbsorbed90.setText(str(totalPowerAbsorbed90pol*ureg.watt))
+
 
         self.rmmpl_2()
         self.addmpl_2(fig0)
